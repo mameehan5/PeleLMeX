@@ -1283,7 +1283,7 @@ PeleLM::taggingSetup()
       errTags.push_back(AMRErrorTag(value, AMRErrorTag::GRAD, field, info));
       itexists = derive_lst.canDerive(field) || isStateVariable(field) ||
                  isReactVariable(field);
-    } else if (realbox.ok()) {
+    } else if (ppr.countval("in_box_lo") != 0 && (ppr.countval("in_box_hi") != 0)) {
       errTags.push_back(AMRErrorTag(info));
       itexists = true;
     } else {
