@@ -1204,6 +1204,8 @@ PeleLM::taggingSetup()
 
   std::string amr_prefix = "amr";
   ParmParse ppamr(amr_prefix);
+  std::string geom_prefix = "geometry";
+  ParmParse ppgeom(geom_prefix);
 
   Vector<std::string> refinement_indicators;
   ppamr.queryarr(
@@ -1214,20 +1216,22 @@ PeleLM::taggingSetup()
     ParmParse ppr(ref_prefix);
 
     // Tag a given box
-    RealBox realbox;
+    Vector<Real> box_lo(AMREX_SPACEDIM);
+    Vector<Real> box_hi(AMREX_SPACEDIM);
     if (ppr.countval("in_box_lo") != 0) {
-      Vector<Real> box_lo(AMREX_SPACEDIM);
-      Vector<Real> box_hi(AMREX_SPACEDIM);
       ppr.getarr("in_box_lo", box_lo, 0, static_cast<int>(box_lo.size()));
-      ppr.getarr("in_box_hi", box_hi, 0, static_cast<int>(box_hi.size()));
-      realbox = RealBox(box_lo.data(), box_hi.data());
+    } else {
+      ppgeom.getarr("prob_lo", box_lo, 0, static_cast<int>(box_lo.size()));
     }
+    if (ppr.countval("in_box_hi") != 0) {
+      ppr.getarr("in_box_hi", box_hi, 0, static_cast<int>(box_hi.size()));
+    } else {
+      ppgeom.getarr("prob_hi", box_hi, 0, static_cast<int>(box_hi.size()));
+    }
+    RealBox realbox = RealBox(box_lo.data(), box_hi.data());
 
     AMRErrorTagInfo info;
-
-    if (realbox.ok()) {
-      info.SetRealBox(realbox);
-    }
+    info.SetRealBox(realbox);
 
     if (ppr.countval("start_time") > 0) {
       Real min_time;
